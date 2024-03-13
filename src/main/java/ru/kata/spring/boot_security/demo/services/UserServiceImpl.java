@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -31,9 +32,15 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     @Transactional
-    public void addUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+    public boolean addUser(User user) {
+        Optional<User> userOld = userRepository.findByUsername(user.getUsername());
+        if (userOld.isPresent()) {
+            return false;
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+            return true;
+        }
     }
     @Override
     @Transactional
