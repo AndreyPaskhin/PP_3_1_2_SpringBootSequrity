@@ -62,9 +62,16 @@ public class AdminController {
     }
     @PostMapping("/update")
     public String update(@ModelAttribute ("user") @Valid User user, BindingResult bindingResult, Model model) {
-        userValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors()) {
             model.addAttribute("allRoles",roleService.getAllRole());
+            return "edit-user";
+        }
+        boolean updateSuccessful = userService.update(user);
+
+        if (!updateSuccessful) {
+            // Если обновление не удалось из-за дублирования имени пользователя, добавляем сообщение об ошибке
+            model.addAttribute("usernameExistsError", "User with this username already exists");
+            model.addAttribute("allRoles", roleService.getAllRole());
             return "edit-user";
         }
         userService.update(user);

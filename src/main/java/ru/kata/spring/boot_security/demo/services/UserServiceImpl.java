@@ -42,11 +42,23 @@ public class UserServiceImpl implements UserService {
             return true;
         }
     }
+//    @Override
+//    @Transactional
+//    public void update(User user) {
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        userRepository.save(user);
+//    }
     @Override
     @Transactional
-    public void update(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public boolean update(User user) {
+        Optional<User> existingUserOptional = userRepository.findByUsername(user.getUsername());
+        if (existingUserOptional.isPresent() && !existingUserOptional.get().getId().equals(user.getId())) {
+            // Если пользователь с таким именем уже существует, и его ID не совпадает с ID обновляемого пользователя, вернуть false
+            return false;
+        }
+        // Продолжаем обновление пользователя, если пользователь с новым именем не существует или это тот же пользователь
         userRepository.save(user);
+        return true;
     }
 
     @Override
